@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classement des Songeurs Fous</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=IBM+Plex+Mono:wght@500;600&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#170a0b;
+    --panel:#2b1013;
+    --panel-light:#3a151a;
+    --wood-line:#4d1c22;
+    --parchment:#f0dfd9;
+    --gold:#b3323b;
+    --gold-bright:#e0555b;
+    --ember:#c9924b;
+    --silver:#c9b3b0;
+    --bronze:#8a4a3a;
+    --moss:#6b4b52;
+    --text:#f2e0da;
+    --text-muted:#b98a86;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, #331419 0%, var(--ink) 55%);
+    color:var(--text);
+    font-family:'Work Sans', sans-serif;
+    min-height:100vh;
+    padding:40px 16px 80px;
+  }
+  .page{max-width:720px;margin:0 auto;}
+
+  /* header */
+  header{text-align:center;margin-bottom:36px;}
+  .coin-mark{
+    width:56px;height:56px;margin:0 auto 14px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  h1{
+    font-family:'Cinzel', serif;
+    font-weight:900;
+    font-size:clamp(28px, 5vw, 42px);
+    letter-spacing:0.5px;
+    margin:0 0 6px;
+    color:var(--gold-bright);
+    text-shadow:0 2px 0 rgba(0,0,0,0.5);
+  }
+  .subtitle{
+    color:var(--text-muted);
+    font-size:14px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+  }
+  .divider{
+    width:120px;height:2px;margin:18px auto 0;
+    background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  /* rules panel */
+  .rules-panel{
+    background:var(--panel);
+    border:1px solid var(--wood-line);
+    border-radius:8px;
+    margin-bottom:22px;
+    overflow:hidden;
+  }
+  .rules-toggle{
+    width:100%;
+    background:var(--panel-light);
+    border:none;
+    color:var(--gold-bright);
+    font-family:'Cinzel', serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.3px;
+    padding:14px 18px;
+    text-align:left;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    transition:background .15s;
+  }
+  .rules-toggle:hover{background:var(--panel);}
+  .chevron{transition:transform .2s ease;color:var(--gold);}
+  .chevron.open{transform:rotate(180deg);}
+  .rules-content{
+    max-height:0;
+    overflow:hidden;
+    padding:0 18px;
+    transition:max-height .3s ease, padding .3s ease;
+    font-size:14px;
+    line-height:1.7;
+    color:var(--text);
+  }
+  .rules-content.open{
+    max-height:600px;
+    padding:4px 18px 18px;
+  }
+  .rules-content ul{margin:0;padding-left:20px;}
+  .rules-content li{margin-bottom:9px;}
+  .rules-content li:last-child{margin-bottom:0;}
+  .rules-content strong{color:var(--gold-bright);}
+
+  /* status bar */
+  .statusbar{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:18px;font-size:13px;color:var(--text-muted);
+    flex-wrap:wrap;gap:8px;
+  }
+  .live-dot{
+    display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--moss);margin-right:6px;
+    box-shadow:0 0 0 0 rgba(91,107,79,0.6);
+    animation:pulse 2.4s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(91,107,79,0.55);}
+    70%{box-shadow:0 0 0 7px rgba(91,107,79,0);}
+    100%{box-shadow:0 0 0 0 rgba(91,107,79,0);}
+  }
+
+  .btn{
+    font-family:'Work Sans', sans-serif;
+    font-weight:600;font-size:13px;letter-spacing:0.3px;
+    padding:9px 16px;border-radius:4px;border:1px solid var(--gold);
+    background:transparent;color:var(--gold-bright);cursor:pointer;
+    transition:background .15s, color .15s, transform .1s;
+  }
+  .btn:hover{background:var(--gold); color:var(--ink);}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--gold);color:var(--ink);}
+  .btn.primary:hover{background:var(--gold-bright);}
+  .btn.danger{border-color:var(--ember);color:#e2a190;}
+  .btn.danger:hover{background:var(--ember);color:var(--text);}
+  .btn.small{padding:6px 10px;font-size:12px;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+  /* add form */
+  .add-panel{
+    background:var(--panel);
+    border:1px solid var(--wood-line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:22px;
+    display:none;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:end;
+  }
+  .add-panel.open{display:flex;}
+  .field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:140px;}
+  .field label{font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-muted);}
+  .field input{
+    background:var(--ink);
+    border:1px solid var(--wood-line);
+    color:var(--text);
+    padding:9px 10px;
+    border-radius:4px;
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+  }
+  .field input:focus{outline:none;border-color:var(--gold);}
+
+  /* roster panel */
+  .roster-panel{
+    background:var(--panel);
+    border:1px solid var(--wood-line);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:22px;
+    display:none;
+    flex-direction:column;
+    gap:14px;
+  }
+  .roster-panel.open{display:flex;}
+  .roster-title{
+    font-family:'Cinzel', serif;
+    font-size:12px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--text-muted);
+  }
+  .roster-chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .roster-chip{
+    display:flex;align-items:center;gap:8px;
+    background:var(--ink);border:1px solid var(--wood-line);border-radius:20px;
+    padding:6px 8px 6px 14px;font-size:13px;color:var(--text);
+  }
+  .roster-chip button{
+    background:var(--gold);color:var(--ink);border:none;border-radius:50%;
+    width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .roster-chip button:hover{background:var(--gold-bright);}
+  .roster-chip .remove{
+    background:transparent;color:var(--text-muted);border:none;cursor:pointer;
+    font-size:15px;padding:0 2px;width:auto;height:auto;
+  }
+  .roster-chip .remove:hover{color:var(--ember);background:transparent;}
+  .roster-add-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .roster-add-row input{
+    flex:1;min-width:160px;
+    background:var(--ink);border:1px solid var(--wood-line);color:var(--text);
+    padding:9px 10px;border-radius:4px;font-family:'Work Sans', sans-serif;font-size:14px;
+  }
+  .roster-add-row input:focus{outline:none;border-color:var(--gold);}
+
+  /* ledger */
+  .ledger{
+    list-style:none;margin:0;padding:0;
+    background:var(--panel);
+    border:1px solid var(--wood-line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .row{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 18px;
+    border-bottom:1px solid var(--wood-line);
+    background:var(--panel);
+    transition:background .15s;
+  }
+  .row:last-child{border-bottom:none;}
+  .row:hover{background:var(--panel-light);}
+
+  .rank{
+    flex:0 0 40px;height:40px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cinzel', serif;font-weight:700;font-size:16px;
+    border:2px solid var(--wood-line);color:var(--text-muted);
+    background:var(--ink);
+  }
+  .row[data-rank="1"] .rank{border-color:var(--gold-bright);color:var(--gold-bright);box-shadow:0 0 12px rgba(233,200,115,0.35);}
+  .row[data-rank="2"] .rank{border-color:var(--silver);color:var(--silver);}
+  .row[data-rank="3"] .rank{border-color:var(--bronze);color:var(--bronze);}
+
+  .name-wrap{flex:1;min-width:0;}
+  .name{
+    font-family:'Cinzel', serif;font-weight:600;font-size:17px;
+    color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .row[data-rank="1"] .name{color:var(--gold-bright);}
+
+  .kamas{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;font-size:16px;
+    color:var(--gold);
+    white-space:nowrap;
+  }
+  .kamas .unit{font-size:11px;color:var(--text-muted);margin-left:4px;}
+
+  .row-actions{display:none;gap:6px;flex:0 0 auto;}
+  .row-actions.visible{display:flex;}
+
+  .empty-state{
+    text-align:center;padding:50px 20px;color:var(--text-muted);
+  }
+  .empty-state .big{font-family:'Cinzel', serif;font-size:20px;color:var(--text);margin-bottom:6px;}
+
+  footer{
+    text-align:center;margin-top:28px;font-size:12px;color:var(--text-muted);
+  }
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--panel-light);border:1px solid var(--gold);
+    color:var(--text);padding:10px 18px;border-radius:6px;font-size:13px;
+    opacity:0;transition:opacity .25s, transform .25s;pointer-events:none;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:480px){
+    .row{padding:12px;gap:10px;}
+    .rank{flex:0 0 32px;height:32px;font-size:13px;}
+    .name{font-size:15px;}
+    .kamas{font-size:14px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .live-dot{animation:none;}
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="coin-mark">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="26" cy="26" r="23" fill="none" stroke="#b3323b" stroke-width="2.5"/>
+        <circle cx="26" cy="26" r="16" fill="none" stroke="#e0555b" stroke-width="1.5"/>
+        <text x="26" y="33" text-anchor="middle" font-family="Cinzel, serif" font-weight="700" font-size="18" fill="#e0555b">K</text>
+      </svg>
+    </div>
+    <h1>Classement des Songeurs Fous</h1>
+    <div class="subtitle">Classement de l'alliance Las Bromas Moustachas</div>
+    <div class="divider"></div>
+  </header>
+
+  <div class="rules-panel">
+    <button class="rules-toggle" id="rulesToggle">
+      <span>Règlement du concours</span>
+      <span class="chevron" id="rulesChevron">▾</span>
+    </button>
+    <div class="rules-content" id="rulesContent">
+      <ul>
+        <li><strong>Période :</strong> le concours se déroule du 1er au dernier jour de chaque mois.</li>
+        <li><strong>Comment participer :</strong> à chaque coffre ouvert ou légende droppée, postez-le sur le channel Discord.</li>
+        <li><strong>Classement :</strong> à la fin du mois, un classement est établi selon la valeur estimée des drops. En cas d'égalité, on départage au nombre de légendes.</li>
+        <li><strong>Récompenses :</strong> le 1er donne 5M au dernier, le 2e donne 3M à l'avant-dernier, le 3e donne 1M à l'avant-avant-dernier.</li>
+        <li><strong>Condition de participation :</strong> avoir ouvert au moins un coffre pendant le mois, soit un minimum de 20 000 bribes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span><span class="live-dot"></span>Mis à jour en direct</span>
+    <span style="display:flex;gap:8px;">
+      <button class="btn small" id="refreshBtn">Actualiser</button>
+      <button class="btn small" id="editToggle">Mode édition</button>
+    </span>
+  </div>
+
+  <div class="add-panel" id="addPanel">
+    <div class="field">
+      <label for="inpName">Joueur</label>
+      <input type="text" id="inpName" placeholder="Ex: Brakou" maxlength="40">
+    </div>
+    <div class="field" style="flex:0 0 160px;">
+      <label for="inpKamas">Kamas</label>
+      <input type="text" inputmode="numeric" id="inpKamas" placeholder="Ex: 60000000">
+    </div>
+    <button class="btn primary" id="addBtn">Ajouter</button>
+  </div>
+
+  <div class="roster-panel" id="rosterPanel">
+    <div class="roster-title">Participants potentiels</div>
+    <div class="roster-chips" id="rosterChips"></div>
+    <div class="roster-add-row">
+      <input type="text" id="inpRosterName" placeholder="Nom du joueur à ajouter à la liste" maxlength="40">
+      <button class="btn small" id="rosterAddBtn">Ajouter à la liste</button>
+    </div>
+  </div>
+
+  <ol class="ledger" id="ledger"></ol>
+
+  <footer>
+    Classement par valeur de drop en songes sur le mois en cours.
+    <div id="binIdDisplay" style="margin-top:6px;font-size:10px;opacity:0.5;"></div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---- Stockage en ligne via JSONBin.io ----
+// Cette clé est visible par quiconque regarde le code source de la page.
+// Au pire, quelqu'un pourrait lire/modifier le classement directement via
+// l'API JSONBin — pas un enjeu de sécurité critique pour ce projet.
+const JSONBIN_API_KEY = '$2a$10$9G/zVtg6N9gzAIP8iZBQM.HVSziNcadjy2Sg3tn28KjMOB/rNsicq';
+
+// Rempli automatiquement au tout premier lancement (voir createBin()).
+// Une fois que tu as l'identifiant, envoie-le à Claude pour qu'il soit
+// codé en dur ici de façon permanente, sinon un nouveau "bin" (donc un
+// classement vide) sera recréé à chaque fois que le cache du navigateur
+// est vidé.
+let JSONBIN_BIN_ID = '';
+
+let appState = { players: [], passwordHash: null, roster: [] };
+let players = [];
+let roster = [];
+let editUnlocked = false;
+let pollTimer = null;
+let editingRowId = null; // freeze rerenders while a row is being edited
+
+const ledgerEl = document.getElementById('ledger');
+const addPanel = document.getElementById('addPanel');
+const editToggle = document.getElementById('editToggle');
+const refreshBtn = document.getElementById('refreshBtn');
+const toastEl = document.getElementById('toast');
+
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), 2200);
+}
+
+function fmtKamas(n){
+  return new Intl.NumberFormat('fr-FR').format(n);
+}
+
+async function sha256(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function createBin(){
+  try{
+    const res = await fetch('https://api.jsonbin.io/v3/b', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
+        'X-Bin-Name':'classement-songeurs-fous'
+      },
+      body: JSON.stringify({ players: [], passwordHash: null, roster: [] })
+    });
+    if(!res.ok) throw new Error('create failed');
+    const json = await res.json();
+    JSONBIN_BIN_ID = json.metadata.id;
+    localStorage.setItem('temp-bin-id', JSONBIN_BIN_ID);
+    setTimeout(()=>{
+      alert("Stockage créé avec succès !\n\nCopie cet identifiant et envoie-le à Claude pour le rendre permanent :\n\n" + JSONBIN_BIN_ID);
+    }, 300);
+  }catch(e){
+    toast("Impossible de créer le stockage en ligne. Vérifie ta connexion.");
+  }
+}
+
+async function loadState(silent){
+  if(!JSONBIN_BIN_ID){
+    JSONBIN_BIN_ID = localStorage.getItem('temp-bin-id') || '';
+  }
+  if(!JSONBIN_BIN_ID){
+    await createBin();
+  }
+  if(!JSONBIN_BIN_ID) return;
+  showBinId();
+  try{
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers:{ 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    if(!res.ok) throw new Error('fetch failed');
+    const json = await res.json();
+    appState = json.record || { players: [], passwordHash: null, roster: [] };
+    players = appState.players || [];
+    roster = appState.roster || [];
+    if(editingRowId === null){ render(); renderRoster(); }
+  }catch(e){
+    if(!silent) toast('Impossible de charger le classement.');
+  }
+}
+
+function showBinId(){
+  const el = document.getElementById('binIdDisplay');
+  if(el && JSONBIN_BIN_ID) el.textContent = 'ID technique : ' + JSONBIN_BIN_ID;
+}
+
+async function saveState(){
+  if(!JSONBIN_BIN_ID) return false;
+  try{
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+      method:'PUT',
+      headers:{ 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_API_KEY },
+      body: JSON.stringify(appState)
+    });
+    return res.ok;
+  }catch(e){
+    return false;
+  }
+}
+
+async function savePlayers(){
+  appState.players = players;
+  const ok = await saveState();
+  if(!ok) toast("Échec de l'enregistrement, réessaie.");
+  return ok;
+}
+
+function render(){
+  const sorted = [...players].sort((a,b)=>b.kamas - a.kamas);
+
+  if(sorted.length === 0){
+    ledgerEl.innerHTML = `<div class="empty-state">
+      <div class="big">Le livre est vide</div>
+      <div>Aucun joueur enregistré pour l'instant.</div>
+    </div>`;
+    return;
+  }
+
+  ledgerEl.innerHTML = '';
+  sorted.forEach((p, i)=>{
+    const rank = i+1;
+    const row = document.createElement('li');
+    row.className = 'row';
+    row.dataset.rank = rank;
+    row.dataset.id = p.id;
+
+    if(editingRowId === p.id){
+      row.innerHTML = `
+        <div class="rank">${rank}</div>
+        <div class="name-wrap" style="display:flex;gap:8px;">
+          <input type="text" class="edit-name" value="${escapeHtml(p.name)}" style="flex:1;background:var(--ink);border:1px solid var(--wood-line);color:var(--text);padding:7px 9px;border-radius:4px;font-family:'Cinzel',serif;">
+          <input type="text" inputmode="numeric" class="edit-kamas" value="${p.kamas}" style="width:130px;background:var(--ink);border:1px solid var(--wood-line);color:var(--gold);padding:7px 9px;border-radius:4px;font-family:'IBM Plex Mono',monospace;">
+        </div>
+        <div class="row-actions visible">
+          <button class="btn small primary" data-action="save">Valider</button>
+          <button class="btn small" data-action="cancel">Annuler</button>
+        </div>
+      `;
+    } else {
+      row.innerHTML = `
+        <div class="rank">${rank}</div>
+        <div class="name-wrap"><div class="name">${escapeHtml(p.name)}</div></div>
+        <div class="kamas">${fmtKamas(p.kamas)}<span class="unit">kamas</span></div>
+        <div class="row-actions ${editUnlocked ? 'visible':''}">
+          <button class="btn small" data-action="edit">Modifier</button>
+          <button class="btn small danger" data-action="delete">Supprimer</button>
+        </div>
+      `;
+    }
+    ledgerEl.appendChild(row);
+  });
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+ledgerEl.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button[data-action]');
+  if(!btn) return;
+  const row = btn.closest('.row');
+  const id = row.dataset.id;
+  const action = btn.dataset.action;
+
+  if(action === 'edit'){
+    editingRowId = id;
+    render();
+  }
+  if(action === 'cancel'){
+    editingRowId = null;
+    render();
+  }
+  if(action === 'save'){
+    const nameInput = row.querySelector('.edit-name');
+    const kamasInput = row.querySelector('.edit-kamas');
+    const newName = nameInput.value.trim();
+    const newKamas = parseInt(kamasInput.value.replace(/\s|\u00A0/g,''), 10);
+    if(!newName || isNaN(newKamas) || newKamas < 0){
+      toast('Nom ou montant invalide.');
+      return;
+    }
+    const p = players.find(pl=>pl.id === id);
+    if(p){ p.name = newName; p.kamas = newKamas; }
+    editingRowId = null;
+    await savePlayers();
+    render();
+    toast('Joueur mis à jour.');
+  }
+  if(action === 'delete'){
+    const p = players.find(pl=>pl.id === id);
+    if(p && confirm(`Supprimer ${p.name} du classement ?`)){
+      players = players.filter(pl=>pl.id !== id);
+      await savePlayers();
+      render();
+      toast('Joueur supprimé.');
+    }
+  }
+});
+
+document.getElementById('addBtn').addEventListener('click', async ()=>{
+  const nameInput = document.getElementById('inpName');
+  const kamasInput = document.getElementById('inpKamas');
+  const name = nameInput.value.trim();
+  const kamas = parseInt(kamasInput.value.replace(/\s|\u00A0/g,''), 10);
+  if(!name || isNaN(kamas) || kamas < 0){
+    toast('Renseigne un nom et un montant valide.');
+    return;
+  }
+  players.push({ id: crypto.randomUUID(), name, kamas });
+  await savePlayers();
+  render();
+  nameInput.value = '';
+  kamasInput.value = '';
+  nameInput.focus();
+  toast('Joueur ajouté.');
+});
+
+function renderRoster(){
+  const chipsEl = document.getElementById('rosterChips');
+  if(!chipsEl) return;
+  if(roster.length === 0){
+    chipsEl.innerHTML = '<span style="color:var(--text-muted);font-size:13px;">Aucun participant dans la liste pour l\'instant.</span>';
+    return;
+  }
+  chipsEl.innerHTML = '';
+  roster.forEach((name, idx)=>{
+    const chip = document.createElement('div');
+    chip.className = 'roster-chip';
+    chip.innerHTML = `
+      <span>${escapeHtml(name)}</span>
+      <button data-idx="${idx}" data-role="add" title="Ajouter au classement">+</button>
+      <button class="remove" data-idx="${idx}" data-role="remove" title="Retirer de la liste">×</button>
+    `;
+    chipsEl.appendChild(chip);
+  });
+}
+
+async function saveRoster(){
+  appState.roster = roster;
+  const ok = await saveState();
+  if(!ok) toast("Échec de l'enregistrement de la liste, réessaie.");
+  return ok;
+}
+
+document.getElementById('rosterChips').addEventListener('click', async (e)=>{
+  const btn = e.target.closest('button[data-role]');
+  if(!btn) return;
+  const idx = parseInt(btn.dataset.idx, 10);
+  const name = roster[idx];
+  if(!name) return;
+
+  if(btn.dataset.role === 'add'){
+    if(players.some(p=>p.name.toLowerCase() === name.toLowerCase())){
+      toast(`${name} est déjà dans le classement.`);
+      return;
+    }
+    const kamasStr = prompt(`Valeur des drops de ${name} en kamas :`);
+    if(kamasStr === null) return;
+    const kamas = parseInt(kamasStr.replace(/\s|\u00A0/g,''), 10);
+    if(isNaN(kamas) || kamas < 0){
+      toast('Montant invalide.');
+      return;
+    }
+    players.push({ id: crypto.randomUUID(), name, kamas });
+    await savePlayers();
+    render();
+    toast(`${name} ajouté au classement.`);
+  }
+
+  if(btn.dataset.role === 'remove'){
+    if(confirm(`Retirer ${name} de la liste des participants potentiels ?`)){
+      roster.splice(idx, 1);
+      await saveRoster();
+      renderRoster();
+    }
+  }
+});
+
+document.getElementById('rosterAddBtn').addEventListener('click', async ()=>{
+  const input = document.getElementById('inpRosterName');
+  const name = input.value.trim();
+  if(!name){
+    toast('Renseigne un nom.');
+    return;
+  }
+  if(roster.some(n=>n.toLowerCase() === name.toLowerCase())){
+    toast('Ce joueur est déjà dans la liste.');
+    return;
+  }
+  roster.push(name);
+  await saveRoster();
+  renderRoster();
+  input.value = '';
+  input.focus();
+  toast('Ajouté à la liste des participants.');
+});
+
+const rulesToggle = document.getElementById('rulesToggle');
+const rulesContent = document.getElementById('rulesContent');
+const rulesChevron = document.getElementById('rulesChevron');
+rulesToggle.addEventListener('click', ()=>{
+  rulesContent.classList.toggle('open');
+  rulesChevron.classList.toggle('open');
+});
+
+refreshBtn.addEventListener('click', async ()=>{
+  await loadState();
+  toast('Classement actualisé.');
+});
+
+editToggle.addEventListener('click', async ()=>{
+  if(editUnlocked){
+    editUnlocked = false;
+    editingRowId = null;
+    addPanel.classList.remove('open');
+    document.getElementById('rosterPanel').classList.remove('open');
+    editToggle.textContent = 'Mode édition';
+    render();
+    return;
+  }
+
+  await loadState(true); // recharge l'état pour avoir le dernier mot de passe connu
+  const existingHash = appState.passwordHash;
+
+  if(!existingHash){
+    // Première fois : personne n'a encore défini de mot de passe éditeur.
+    const pass1 = prompt('Aucun mot de passe éditeur n\'est configuré. Choisis-en un :');
+    if(pass1 === null || pass1.trim() === '') return;
+    const pass2 = prompt('Confirme le mot de passe :');
+    if(pass1 !== pass2){
+      toast('Les mots de passe ne correspondent pas, réessaie.');
+      return;
+    }
+    const hash = await sha256(pass1);
+    appState.passwordHash = hash;
+    const ok = await saveState();
+    if(!ok){
+      toast('Échec de la création du mot de passe, réessaie.');
+      return;
+    }
+    editUnlocked = true;
+    toast('Mot de passe éditeur créé.');
+  } else {
+    const pass = prompt('Mot de passe éditeur :');
+    if(pass === null) return;
+    const hash = await sha256(pass);
+    if(hash === existingHash){
+      editUnlocked = true;
+    } else {
+      toast('Mot de passe incorrect.');
+      return;
+    }
+  }
+
+  if(editUnlocked){
+    addPanel.classList.add('open');
+    document.getElementById('rosterPanel').classList.add('open');
+    editToggle.textContent = 'Quitter le mode édition';
+    render();
+    renderRoster();
+  }
+});
+
+function startPolling(){
+  pollTimer = setInterval(()=>{ if(editingRowId === null) loadState(true); }, 20000);
+}
+
+loadState().then(startPolling);
+</script>
+</body>
+</html>
